@@ -118,6 +118,11 @@ class NameParser(object):
             if 'extra_info' in named_groups:
                 tmp_extra_info = match.group('extra_info')
                 
+                if re.search(r'([. _-]|^)(german)(([. _-])(dubbed))?\w*([. _-]|$)', tmp_extra_info, re.I):
+                    logger.log(u"Found german episode")
+                    result.series_language = 'de'
+                
+                
                 # Show.S04.Special is almost certainly not every episode in the season
                 if tmp_extra_info and cur_regex_name == 'season_only' and re.match(r'([. _-]|^)(special|extra)\w*([. _-]|$)', tmp_extra_info, re.I):
                     continue
@@ -243,7 +248,8 @@ class ParseResult(object):
                  episode_numbers=None,
                  extra_info=None,
                  release_group=None,
-                 air_date=None
+                 air_date=None,
+                 series_language = 'en'
                  ):
 
         self.original_name = original_name
@@ -262,6 +268,8 @@ class ParseResult(object):
         
         self.which_regex = None
         
+        self.series_language = series_language
+        
     def __eq__(self, other):
         if not other:
             return False
@@ -277,6 +285,8 @@ class ParseResult(object):
         if self.release_group != other.release_group:
             return False
         if self.air_date != other.air_date:
+            return False
+        if self.series_language != other.series_language:
             return False
         
         return True
