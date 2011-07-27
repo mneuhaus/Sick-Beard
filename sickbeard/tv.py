@@ -47,7 +47,7 @@ from common import DOWNLOADED, SNATCHED, SNATCHED_PROPER, ARCHIVED, IGNORED, UNA
 
 class TVShow(object):
 
-    def __init__ (self, tvdbid, lang=""):
+    def __init__ (self, tvdbid, lang="",show_lang=""):
 
         self.tvdbid = tvdbid
 
@@ -67,6 +67,7 @@ class TVShow(object):
         self.paused = 0
         self.air_by_date = 0
         self.lang = lang
+        self.show_lang = show_lang
 
         self.lock = threading.Lock()
         self._isDirGood = False
@@ -525,6 +526,10 @@ class TVShow(object):
 
             if self.lang == "":
                 self.lang = sqlResults[0]["lang"]
+                
+            if self.show_lang == "":
+                self.show_lang = sqlResults[0]["show_lang"]
+
 
 
     def loadFromTVDB(self, cache=True, tvapi=None, cachedSeason=None):
@@ -809,7 +814,8 @@ class TVShow(object):
                         "air_by_date": self.air_by_date,
                         "startyear": self.startyear,
                         "tvr_name": self.tvrname,
-                        "lang": self.lang
+                        "lang": self.lang,
+                        "show_lang": self.show_lang
                         }
 
         myDB.upsert("tv_shows", newValueDict, controlValueDict)
