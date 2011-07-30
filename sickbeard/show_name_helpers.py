@@ -18,7 +18,7 @@
 
 import sickbeard
 
-from sickbeard.common import countryList
+from sickbeard.common import countryList, showLanguages
 from sickbeard.helpers import sanitizeSceneName
 from sickbeard.scene_exceptions import get_scene_exceptions
 from sickbeard import logger
@@ -33,7 +33,7 @@ resultFilters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
                  "(dir|sample|nfo)fix", "sample", "(dvd)?extras", 
                  "dub(bed)?"]
 
-def filterBadReleases(name):
+def filterBadReleases(name,showLang):
     """
     Filters out non-english and just all-around stupid releases by comparing them
     to the resultFilters contents.
@@ -66,6 +66,8 @@ def filterBadReleases(name):
 
     # if any of the bad strings are in the name then say no
     for x in resultFilters + sickbeard.IGNORE_WORDS.split(','):
+        if x == showLanguages.get(showLang):
+            continue
         if re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
             logger.log(u"Invalid scene release: "+name+" contains "+x+", ignoring it", logger.DEBUG)
             return False
