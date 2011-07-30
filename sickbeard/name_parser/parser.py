@@ -118,7 +118,7 @@ class NameParser(object):
             if 'extra_info' in named_groups:
                 tmp_extra_info = match.group('extra_info')
                 
-                if re.search(r'([. _-]|^)(german)(([. _-])(dubbed))?\w*([. _-]|$)', tmp_extra_info, re.I):
+                if tmp_extra_info and re.search(r'([. _-]|^)(german)(([. _-])(dubbed))?\w*([. _-]|$)', tmp_extra_info, re.I):
                     logger.log(u"Found german episode")
                     result.series_language = 'de'
                 
