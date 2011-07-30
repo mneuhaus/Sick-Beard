@@ -28,7 +28,8 @@ import sickbeard
 
 from sickbeard import helpers, classes, logger, db
 
-from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT
+from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT,\
+    showLanguages
 from sickbeard import tvcache
 from sickbeard import encodingKludge as ek
 from sickbeard.exceptions import ex
@@ -201,7 +202,7 @@ class GenericProvider:
         
         return (title, url)
     
-    def findEpisode (self, episode, manualSearch=False):
+    def findEpisode(self, episode, manualSearch=False):
 
         self._checkAuth()
 
@@ -246,6 +247,10 @@ class GenericProvider:
 
             if not episode.show.wantEpisode(episode.season, episode.episode, quality, manualSearch):
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
+                continue
+            
+            if not parse_result.series_language == episode.show.show_lang:
+                logger.log(u"Ignoring result "+title+" because the language: " + showLanguages[parse_result.series_language] + " does not match the desired language: " + showLanguages[episode.show.show_lang])
                 continue
 
             logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
