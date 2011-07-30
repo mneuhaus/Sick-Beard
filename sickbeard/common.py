@@ -241,7 +241,7 @@ countryList = {'Australia': 'AU',
                'USA': 'US'
                }
 
-showLanguages = {'de':'German',
-                 'en':'English',
-                 'fr':'French'
+showLanguages = {'de':'german',
+                 'en':'english',
+                 'fr':'french'
                  }
