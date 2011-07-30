@@ -282,7 +282,7 @@ def findEpisode(episode, manualSearch=False):
         didSearch = True
 
         # skip non-tv crap
-        curFoundResults = filter(lambda x: show_name_helpers.filterBadReleases(x.name) and show_name_helpers.isGoodResult(x.name, episode.show), curFoundResults)
+        curFoundResults = filter(lambda x: show_name_helpers.filterBadReleases(x.name,episode.show.show_lang) and show_name_helpers.isGoodResult(x.name, episode.show), curFoundResults)
 
         # loop all results and see if any of them are good enough that we can stop searching
         done_searching = False
