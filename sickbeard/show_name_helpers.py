@@ -43,8 +43,9 @@ def filterBadReleases(name,showLang=u"en"):
     Returns: True if the release name is OK, False if it's bad.
     """
 
+    additionalFilters = []
     if showLang == u"en":
-        resultFilters.append("dub(bed)?")
+        additionalFilters.append("dub(bed)?")
 
     try:
         fp = NameParser()
@@ -68,7 +69,7 @@ def filterBadReleases(name,showLang=u"en"):
         return True
 
     # if any of the bad strings are in the name then say no
-    for x in resultFilters + sickbeard.IGNORE_WORDS.split(','):
+    for x in resultFilters + sickbeard.IGNORE_WORDS.split(',') + additionalFilters:
         if x == showLanguages.get(showLang):
             continue
         if re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
