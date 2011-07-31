@@ -137,7 +137,7 @@ class NameParser(object):
                         if not lang_match:
                             continue
                         else:
-                            logger.log(u"Found " + showLanguages.get(cur_lang_regex_name) + " episode") 
+                            logger.log(u"Found " + showLanguages.get(cur_lang_regex_name) + " episode",logger.DEBUG) 
                             result.series_language = cur_lang_regex_name
                 
                 #if tmp_extra_info and re.search(r'(^|\w|[. _-])*(german)(([. _-])(dubbed))?\w*([. _-]|$)', tmp_extra_info, re.I):
