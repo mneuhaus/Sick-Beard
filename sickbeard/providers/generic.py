@@ -202,6 +202,9 @@ class GenericProvider:
         
         return (title, url)
     
+    def _get_language(self,title=None,item=None):
+        return 'en'
+    
     def findEpisode(self, episode, manualSearch=False):
 
         self._checkAuth()
@@ -234,6 +237,8 @@ class GenericProvider:
             except InvalidNameException:
                 logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
                 continue
+            
+            language = self._get_language(title,item)
 
             if episode.show.air_by_date:
                 if parse_result.air_date != episode.airdate:
@@ -249,8 +254,8 @@ class GenericProvider:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
             
-            if not parse_result.series_language == episode.show.show_lang:
-                logger.log(u"Ignoring result "+title+" because the language: " + showLanguages[parse_result.series_language] + " does not match the desired language: " + showLanguages[episode.show.show_lang])
+            if not language == episode.show.show_lang:
+                logger.log(u"Ignoring result "+title+" because the language: " + showLanguages[language] + " does not match the desired language: " + showLanguages[episode.show.show_lang])
                 continue
 
             logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
@@ -272,7 +277,7 @@ class GenericProvider:
         results = {}
 
         for curString in self._get_season_search_strings(show, season):
-            itemList += self._doSearch(curString)
+            itemList += self._doSearch(curString,show=show)
 
         for item in itemList:
 
@@ -287,6 +292,8 @@ class GenericProvider:
             except InvalidNameException:
                 logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
                 continue
+            
+            language = self._get_language(title,item)
 
             if not show.air_by_date:
                 # this check is meaningless for non-season searches
@@ -322,6 +329,10 @@ class GenericProvider:
             
             if not wantEp:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
+                continue
+            
+            if not language == show.show_lang:
+                logger.log(u"Ignoring result "+title+" because the language: " + showLanguages[parse_result.series_language] + " does not match the desired language: " + showLanguages[show.show_lang])
                 continue
 
             logger.log(u"Found result " + title + " at " + url, logger.DEBUG)

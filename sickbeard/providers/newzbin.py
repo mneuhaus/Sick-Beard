@@ -31,7 +31,7 @@ import generic
 import sickbeard.encodingKludge as ek
 from sickbeard import classes, logger, helpers, exceptions, show_name_helpers
 from sickbeard import tvcache
-from sickbeard.common import Quality
+from sickbeard.common import Quality, languageShortCode
 from sickbeard.exceptions import ex
 
 class NewzbinDownloader(urllib.FancyURLopener):
@@ -77,6 +77,10 @@ class NewzbinProvider(generic.NZBProvider):
         self.NEWZBIN_NS = 'http://www.newzbin.com/DTD/2007/feeds/report/'
 
         self.NEWZBIN_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
+        
+        self._language_codes = {'en':4096,
+                                'de':4,
+                                'fr':2}
 
     def _report(self, name):
         return '{'+self.NEWZBIN_NS+'}'+name
@@ -267,10 +271,30 @@ class NewzbinProvider(generic.NZBProvider):
         else:
             searchStr = " OR ".join(['^"'+x+' - '+str(ep_obj.airdate)+'"' for x in nameList])
         return [searchStr]
+    
+    def _get_language(self, title=None, item=None):
+        if not item:
+            return 'en'
+        
+        report = item.find('{http://www.newzbin.com/DTD/2007/feeds/report/}attributes')
+        attributes = report.findall('{http://www.newzbin.com/DTD/2007/feeds/report/}attribute')
+        
+        attributes = filter(lambda x: x.attrib.get('type') == 'Language', attributes)
+        
+        lang = 'en'
+        if len(attributes) == 1:
+            lang = languageShortCode.get(attributes[0].text.lower(),'en')
+        else:
+            logger.log('Found multiple languages', logger.DEBUG)
+        
+        return lang
 
     def _doSearch(self, searchStr, show=None):
 
-        data = self._getRSSData(searchStr.encode('utf-8'))
+        if show:
+            data = self._getRSSData(searchStr.encode('utf-8'),show.show_lang)
+        else:
+            data = self._getRSSData(searchStr.encode('utf-8'))
         
         item_list = []
 
@@ -285,22 +309,31 @@ class NewzbinProvider(generic.NZBProvider):
             title = cur_item.findtext('title')
             if title == 'Feed Error':
                 raise exceptions.AuthException("The feed wouldn't load, probably because of invalid auth info")
-            if sickbeard.USENET_RETENTION is not None:
-                try:
-                    post_date = datetime.strptime(cur_item.findtext('{http://www.newzbin.com/DTD/2007/feeds/report/}postdate'), self.NEWZBIN_DATE_FORMAT)
-                    retention_date = datetime.now() - timedelta(days=sickbeard.USENET_RETENTION)
-                    if post_date < retention_date:
-                        continue
-                except Exception, e:
-                    logger.log("Error parsing date from Newzbin RSS feed: " + str(e), logger.ERROR)
-                    continue
+            #if sickbeard.USENET_RETENTION is not None:
+            #    try:
+            #        post_date = datetime.strptime(cur_item.findtext('{http://www.newzbin.com/DTD/2007/feeds/report/}postdate'), self.NEWZBIN_DATE_FORMAT)
+            #        retention_date = datetime.now() - timedelta(days=sickbeard.USENET_RETENTION)
+            #        if post_date < retention_date:
+            #            continue
+            #    except Exception, e:
+            #        logger.log("Error parsing date from Newzbin RSS feed: " + str(e), logger.ERROR)
+            #        continue
 
             item_list.append(cur_item)
 
         return item_list
 
 
-    def _getRSSData(self, search=None):
+    def _getRSSData(self, search=None,showLang=None):
+        
+        if not showLang:
+            languages = helpers.getAllLanguages()
+            englishOnly = len(filter(lambda x: not x == 'en', languages)) == 0
+            languageCodes = map(lambda x: self._language_codes.get(x), languages)
+            languageCode = sum(languageCodes)
+        else:
+            englishOnly = showLang == 'en'
+            languageCode = self._language_codes.get(showLang)                    
 
         params = {
                 'searchaction': 'Search',
@@ -312,7 +345,7 @@ class NewzbinProvider(generic.NZBProvider):
                 'u_show_passworded': 0,
                 'u_v3_retention': 0,
                 'ps_rb_video_format': 3082257,
-                'ps_rb_language': 4096,
+                'ps_rb_language': languageCode,
                 'sort': 'date',
                 'order': 'desc',
                 'u_post_results_amt': 50,
@@ -325,7 +358,10 @@ class NewzbinProvider(generic.NZBProvider):
         else:
             params['q'] = ''
 
-        params['q'] += 'Attr:Lang~Eng AND NOT Attr:VideoF=DVD'
+        params['q'] += 'NOT Attr:VideoF=DVD'
+        
+        if englishOnly:
+            params['q'] += ' AND Attr:Lang~Eng' 
 
         url = self.url + "search/?%s" % urllib.urlencode(params)
         logger.log("Newzbin search URL: " + url, logger.DEBUG)

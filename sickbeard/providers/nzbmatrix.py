@@ -26,9 +26,10 @@ import xml.etree.cElementTree as etree
 import sickbeard
 import generic
 
-from sickbeard import classes, logger, show_name_helpers
+from sickbeard import classes, logger, show_name_helpers, helpers
 from sickbeard import tvcache
 from sickbeard.exceptions import ex
+from sickbeard.name_parser.parser import NameParser, InvalidNameException
 
 class NZBMatrixProvider(generic.NZBProvider):
 
@@ -57,12 +58,30 @@ class NZBMatrixProvider(generic.NZBProvider):
 
         # search for all show names and episode numbers like ("a","b","c") in a single search
         return ['("' + '","'.join(sceneSearchStrings) + '")']
+    
+    def _get_language(self, title=None, item=None):
+        if not title:
+            return 'en'
+        else:
+            try:
+                myParser = NameParser()
+                parse_result = myParser.parse(title)
+            except InvalidNameException:
+                logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
+                return 'en'
+        
+        return parse_result.series_language
 
     def _doSearch(self, curString, quotes=False, show=None):
 
         term =  re.sub('[\.\-]', ' ', curString).encode('utf-8')
         if quotes:
             term = "\""+term+"\""
+            
+        english = 1
+        if show and show.show_lang != 'en':
+            english = 0
+            
 
         params = {"term": term,
                   "age": sickbeard.USENET_RETENTION,
@@ -70,7 +89,7 @@ class NZBMatrixProvider(generic.NZBProvider):
                   "username": sickbeard.NZBMATRIX_USERNAME,
                   "apikey": sickbeard.NZBMATRIX_APIKEY,
                   "subcat": "6,41",
-                  "english": 1,
+                  "english": english,
                   "ssl": 1,
                   "scenename": 1}
 
@@ -149,13 +168,22 @@ class NZBMatrixCache(tvcache.TVCache):
 
 
     def _getRSSData(self):
+        
+        languages = helpers.getAllLanguages()
+        
+        languages = filter(lambda x: not x == 'en', languages)
+        
+        english = 1
+        if len(languages) > 0:
+            english = 0
+        
         # get all records since the last timestamp
         url = "http://rss.nzbmatrix.com/rss.php?"
 
         urlArgs = {'page': 'download',
                    'username': sickbeard.NZBMATRIX_USERNAME,
                    'apikey': sickbeard.NZBMATRIX_APIKEY,
-                   'english': 1,
+                   'english': english,
                    'ssl': 1,
                    'scenename': 1,
                    'subcat': '6,41'}
