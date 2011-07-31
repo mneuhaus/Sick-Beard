@@ -27,7 +27,7 @@ import shutil
 import sickbeard
 
 from sickbeard.exceptions import MultipleShowObjectsException
-from sickbeard import logger, classes
+from sickbeard import logger, classes, common
 from sickbeard.common import USER_AGENT, mediaExtensions, XML_NSMAP
 
 from sickbeard import db
@@ -37,6 +37,7 @@ from sickbeard.exceptions import ex
 from lib.tvdb_api import tvdb_api, tvdb_exceptions
 
 import xml.etree.cElementTree as etree
+import datetime
 
 urllib._urlopener = classes.SickBeardURLopener()
 
@@ -500,3 +501,17 @@ def sanitizeSceneName (name, ezrss=False):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+def getAllLanguages ():
+    """
+    Returns all show languages where an episode is wanted or unaired
+    
+    Returns: A list of all language codes
+    """
+    myDB = db.DBConnection()
+    
+    sqlLanguages = myDB.select("SELECT DISTINCT(t.show_lang) FROM tv_shows t, tv_episodes e WHERE t.tvdb_id = e.showid AND (e.status = ? OR e.status = ?)", [common.UNAIRED,common.WANTED])
+    
+    languages = map(lambda x: str(x["show_lang"]), sqlLanguages)
+    
+    return languages
