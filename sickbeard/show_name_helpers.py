@@ -30,10 +30,10 @@ import datetime
 from name_parser.parser import NameParser, InvalidNameException
 
 resultFilters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
-                 "(dir|sample|nfo)fix", "sample", "(dvd)?extras", 
-                 "dub(bed)?"]
+                 "(dir|sample|nfo)fix", "sample", "(dvd)?extras"] 
+                 
 
-def filterBadReleases(name,showLang):
+def filterBadReleases(name,showLang='en'):
     """
     Filters out non-english and just all-around stupid releases by comparing them
     to the resultFilters contents.
@@ -42,6 +42,9 @@ def filterBadReleases(name,showLang):
     
     Returns: True if the release name is OK, False if it's bad.
     """
+
+    if showLang == 'en':
+        resultFilters.append("dub(bed)?")
 
     try:
         fp = NameParser()
