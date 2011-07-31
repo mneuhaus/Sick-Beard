@@ -33,7 +33,7 @@ resultFilters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
                  "(dir|sample|nfo)fix", "sample", "(dvd)?extras"] 
                  
 
-def filterBadReleases(name,showLang='en'):
+def filterBadReleases(name,showLang=u"en"):
     """
     Filters out non-english and just all-around stupid releases by comparing them
     to the resultFilters contents.
@@ -43,7 +43,7 @@ def filterBadReleases(name,showLang='en'):
     Returns: True if the release name is OK, False if it's bad.
     """
 
-    if showLang == 'en':
+    if showLang == u"en":
         resultFilters.append("dub(bed)?")
 
     try:

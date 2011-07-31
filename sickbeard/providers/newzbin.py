@@ -274,16 +274,16 @@ class NewzbinProvider(generic.NZBProvider):
     
     def _get_language(self, title=None, item=None):
         if not item:
-            return 'en'
+            return u"en"
         
         report = item.find('{http://www.newzbin.com/DTD/2007/feeds/report/}attributes')
         attributes = report.findall('{http://www.newzbin.com/DTD/2007/feeds/report/}attribute')
         
         attributes = filter(lambda x: x.attrib.get('type') == 'Language', attributes)
         
-        lang = 'en'
+        lang = u"en"
         if len(attributes) == 1:
-            lang = languageShortCode.get(attributes[0].text.lower(),'en')
+            lang = languageShortCode.get(attributes[0].text.lower(),u"en")
         else:
             logger.log('Found multiple languages', logger.DEBUG)
         
@@ -328,11 +328,11 @@ class NewzbinProvider(generic.NZBProvider):
         
         if not showLang:
             languages = helpers.getAllLanguages()
-            englishOnly = len(filter(lambda x: not x == 'en', languages)) == 0
+            englishOnly = len(filter(lambda x: not x == u"en", languages)) == 0
             languageCodes = map(lambda x: self._language_codes.get(x), languages)
             languageCode = sum(languageCodes)
         else:
-            englishOnly = showLang == 'en'
+            englishOnly = showLang == u"en"
             languageCode = self._language_codes.get(showLang)                    
 
         params = {

@@ -79,7 +79,7 @@ class NZBMatrixProvider(generic.NZBProvider):
             term = "\""+term+"\""
             
         english = 1
-        if show and show.show_lang != 'en':
+        if show and show.show_lang != u"en":
             english = 0
             
 
@@ -171,7 +171,7 @@ class NZBMatrixCache(tvcache.TVCache):
         
         languages = helpers.getAllLanguages()
         
-        languages = filter(lambda x: not x == 'en', languages)
+        languages = filter(lambda x: not x == u"en", languages)
         
         english = 1
         if len(languages) > 0:
