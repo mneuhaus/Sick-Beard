@@ -245,3 +245,8 @@ showLanguages = {'de':'german',
                  'en':'english',
                  'fr':'french'
                  }
+
+languageShortCode = {'german':'de',
+                     'english':'en',
+                     'french':'fr'
+                     }
