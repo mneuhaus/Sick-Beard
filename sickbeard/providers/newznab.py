@@ -28,7 +28,7 @@ import xml.etree.cElementTree as etree
 import sickbeard
 import generic
 
-from sickbeard import classes
+from sickbeard import classes, helpers
 from sickbeard.helpers import sanitizeSceneName
 from sickbeard import scene_exceptions
 from sickbeard import encodingKludge as ek
@@ -37,6 +37,7 @@ from sickbeard import exceptions
 from sickbeard import logger
 from sickbeard import tvcache
 from sickbeard.exceptions import ex
+from sickbeard.name_parser.parser import NameParser, InvalidNameException
 
 class NewznabProvider(generic.NZBProvider):
 
@@ -146,17 +147,34 @@ class NewznabProvider(generic.NZBProvider):
 				to_return.append(cur_return)
 
 		return to_return
+	
+	def _get_language(self, title=None, item=None):
+		if not title:
+			return 'en'
+		else:
+			try:
+				myParser = NameParser()
+				parse_result = myParser.parse(title)
+			except InvalidNameException:
+				logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
+				return 'en'
+
+		return parse_result.series_language	
 
 	def _doGeneralSearch(self, search_string):
 		return self._doSearch({'q': search_string})
 
 	#def _doSearch(self, show, season=None, episode=None, search=None):
 	def _doSearch(self, search_params, show=None):
+		
+		cat = '5030,5040'
+		if show and show.show_lang != u"en":
+			cat = '5020'
 
 		params = {"t": "tvsearch",
 				  "maxage": sickbeard.USENET_RETENTION,
 				  "limit": 100,
-				  "cat": '5030,5040'}
+				  "cat": cat}
 
 		if search_params:
 			params.update(search_params)
@@ -246,10 +264,18 @@ class NewznabCache(tvcache.TVCache):
 		self.minTime = 15
 
 	def _getRSSData(self):
+		
+		languages = helpers.getAllLanguages()
+		
+		languages = filter(lambda x: not x == u"en", languages)
+		
+		cat = '5030,5040'
+		if len(languages) > 0:
+			cat = '5020'
 
 		params = {"t": "tvsearch",
 				  "age": sickbeard.USENET_RETENTION,
-				  "cat": '5040,5030'}
+				  "cat": cat}
 
 		if self.provider.key:
 			params['apikey'] = self.provider.key
