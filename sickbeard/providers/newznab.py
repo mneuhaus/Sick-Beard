@@ -196,6 +196,10 @@ class NewznabProvider(generic.NZBProvider):
 				  "limit": 100,
 				  "cat": cat}
 
+		# hack this in for now
+		if self.getID() == 'nzbs_org':
+			params['cat'] += ',5070,5090'
+
 		if search_params:
 			params.update(search_params)
 
@@ -284,6 +288,10 @@ class NewznabCache(tvcache.TVCache):
 		params = {"t": "tvsearch",
 				  "age": sickbeard.USENET_RETENTION,
 				  "cat": cat}
+
+		# hack this in for now
+		if self.provider.getID() == 'nzbs_org':
+			params['cat'] += ',5070,5090'
 
 		if self.provider.key:
 			params['apikey'] = self.provider.key
