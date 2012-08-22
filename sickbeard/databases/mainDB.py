@@ -399,9 +399,16 @@ class FixAirByDateSetting(SetNzbTorrentSettings):
         
         self.incDBVersion()
         
-class AddShowLang (FixAirByDateSetting):
+class AddCustomSearchNames (AddLang):
     def test(self):
-        return self.hasColumn("tv_shows", "show_lang")
-
+        return self.hasColumn("tv_shows", "custom_search_names")
+    
     def execute(self):
-        self.addColumn("tv_shows", "show_lang", "TEXT", "en")
+        self.addColumn("tv_shows", "custom_search_names", "TEXT", "")
+
+# class AddShowLang (FixAirByDateSetting):
+#     def test(self):
+#         return self.hasColumn("tv_shows", "show_lang")
+
+#     def execute(self):
+#         self.addColumn("tv_shows", "show_lang", "TEXT", "en")

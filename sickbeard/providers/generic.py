@@ -271,11 +271,11 @@ class GenericProvider:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
             
-            if episode.show.show_lang not in languages:
-                logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + episode.show.show_lang)
+            if episode.show.lang not in languages:
+                logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + episode.show.lang)
                 continue
 
-            logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+            logger.log(u"Found result " + title + " at " + url + "[" + episode.show.lang + " in " + ",".join(languages) + "]", logger.DEBUG)
 
             result = self.getResult([episode])
             result.url = url
@@ -348,11 +348,11 @@ class GenericProvider:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
             
-            if show.show_lang not in languages:
-                logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + show.show_lang)
+            if show.lang not in languages:
+                logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + show.lang)
                 continue
 
-            logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+            logger.log(u"Found result " + title + " at " + url + "[" + show.lang + " in " + ",".join(languages) + "]", logger.DEBUG)
 
             # make a result object
             epObj = []

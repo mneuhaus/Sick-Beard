@@ -79,7 +79,7 @@ class NZBMatrixProvider(generic.NZBProvider):
             term = "\""+term+"\""
             
         english = 1
-        if show and show.show_lang != u"en":
+        if show and show.lang != u"en":
             english = 0
             
 

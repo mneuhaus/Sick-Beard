@@ -292,7 +292,7 @@ class NewzbinProvider(generic.NZBProvider):
     def _doSearch(self, searchStr, show=None):
 
         if show:
-            data = self._getRSSData(searchStr.encode('utf-8'),show.show_lang)
+            data = self._getRSSData(searchStr.encode('utf-8'),show.lang)
         else:
             data = self._getRSSData(searchStr.encode('utf-8'))
         
