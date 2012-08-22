@@ -1735,7 +1735,7 @@ class NewHomeAddShows:
     @cherrypy.expose
     def addNewShow(self, whichSeries=None, tvdbLang="en", rootDir=None, defaultStatus=None,
                    anyQualities=None, bestQualities=None, seasonFolders=None, fullShowPath=None,
-                   other_shows=None, skipShow=None,showLang=None):
+                   other_shows=None, skipShow=None):
         """
         Receive tvdb id, dir, and other options and create a show from them. If extra show dirs are
         provided then it forwards back to newShow, if not it goes to /home.
@@ -1815,7 +1815,7 @@ class NewHomeAddShows:
         newQuality = Quality.combineQualities(map(int, anyQualities), map(int, bestQualities))
         
         # add the show
-        sickbeard.showQueueScheduler.action.addShow(tvdb_id, show_dir, int(defaultStatus), newQuality, seasonFolders, tvdbLang,showLang) #@UndefinedVariable
+        sickbeard.showQueueScheduler.action.addShow(tvdb_id, show_dir, int(defaultStatus), newQuality, seasonFolders, tvdbLang) #@UndefinedVariable
         ui.notifications.message('Show added', 'Adding the specified show into '+show_dir)
 
         return finishAddShow()
