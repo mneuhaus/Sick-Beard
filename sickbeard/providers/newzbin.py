@@ -34,6 +34,8 @@ from sickbeard import tvcache
 from sickbeard.common import Quality, languageShortCode
 from sickbeard.exceptions import ex
 from lib.dateutil.parser import parse as parseDate
+from sickbeard.name_parser.parser import NameParser, InvalidNameException
+from pprint import pprint
 
 class NewzbinDownloader(urllib.FancyURLopener):
 
@@ -274,22 +276,18 @@ class NewzbinProvider(generic.NZBProvider):
             searchStr = " OR ".join(['^"'+x+' - '+str(ep_obj.airdate)+'"' for x in nameList])
         return [searchStr]
     
-    def _get_language(self, title=None, item=None):
+    def _get_languages(self, title=None, item=None):
         if not item:
             return u"en"
+
+        languages = []
+
+        for attribute in item.getElementsByTagName('report:attribute'):
+            if attribute.getAttribute('type') == u"Language":
+                language = languageShortCode.get(helpers.get_xml_text(attribute).lower(), u"en")
+                languages.append(language)
         
-        report = item.find('{http://www.newzbin.com/DTD/2007/feeds/report/}attributes')
-        attributes = report.findall('{http://www.newzbin.com/DTD/2007/feeds/report/}attribute')
-        
-        attributes = filter(lambda x: x.attrib.get('type') == 'Language', attributes)
-        
-        lang = u"en"
-        if len(attributes) == 1:
-            lang = languageShortCode.get(attributes[0].text.lower(),u"en")
-        else:
-            logger.log('Found multiple languages', logger.DEBUG)
-        
-        return lang
+        return languages
 
     def _doSearch(self, searchStr, show=None):
 

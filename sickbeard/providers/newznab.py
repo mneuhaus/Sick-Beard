@@ -148,18 +148,18 @@ class NewznabProvider(generic.NZBProvider):
 
 		return to_return
 	
-	def _get_language(self, title=None, item=None):
+	def _get_languages(self, title=None, item=None):
 		if not title:
-			return 'en'
+			return ['en']
 		else:
 			try:
 				myParser = NameParser()
 				parse_result = myParser.parse(title)
 			except InvalidNameException:
 				logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
-				return 'en'
+				return ['en']
 
-		return parse_result.series_language	
+		return [parse_result.series_language]
 
 	def _doGeneralSearch(self, search_string):
 		return self._doSearch({'q': search_string})
