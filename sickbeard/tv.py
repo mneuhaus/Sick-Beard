@@ -111,7 +111,7 @@ class TVShow(object):
 
     def getLanguages(self):
         languages = []
-        for language in self.audio_langs.split("|"):
+        for language in str(self.audio_langs).split("|"):
             parts = language.split(":")
             if parts[0] == u'tvdb':
                 parts[0] = self.lang
