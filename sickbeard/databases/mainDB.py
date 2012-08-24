@@ -323,7 +323,14 @@ class AddLang (FixSabHostURL):
     def execute(self):
         self.addColumn("tv_shows", "lang", "TEXT", "en")
 
-class PopulateRootDirs (AddLang):
+class AddCustomSearchNames (AddLang):
+    def test(self):
+        return self.hasColumn("tv_shows", "custom_search_names")
+
+    def execute(self):
+        self.addColumn("tv_shows", "custom_search_names", "TEXT", "")
+
+class PopulateRootDirs (AddCustomSearchNames):
     def test(self):
         return self.checkDBVersion() >= 7
     
@@ -399,16 +406,16 @@ class FixAirByDateSetting(SetNzbTorrentSettings):
         
         self.incDBVersion()
         
-class AddCustomSearchNames (AddLang):
+class AddShowLang (FixAirByDateSetting):
     def test(self):
-        return self.hasColumn("tv_shows", "custom_search_names")
+        return self.hasColumn("tv_shows", "audio_lang")
     
     def execute(self):
-        self.addColumn("tv_shows", "custom_search_names", "TEXT", "")
+        self.addColumn("tv_shows", "audio_lang", "TEXT", "en:0")
 
-# class AddShowLang (FixAirByDateSetting):
-#     def test(self):
-#         return self.hasColumn("tv_shows", "show_lang")
-
-#     def execute(self):
-#         self.addColumn("tv_shows", "show_lang", "TEXT", "en")
+class AddShowLangsToEpisode (AddShowLang):
+    def test(self):
+        return self.hasColumn("tv_episodes", "audio_langs")
+    
+    def execute(self):
+        self.addColumn("tv_episodes", "audio_langs", "TEXT", "")

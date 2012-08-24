@@ -41,7 +41,7 @@ from sickbeard import search_queue
 from sickbeard import image_cache
 
 from sickbeard.providers import newznab, getProviderClass
-from sickbeard.common import Quality, Overview, statusStrings, showLanguages
+from sickbeard.common import Quality, Overview, statusStrings, audioLanguages
 from sickbeard.common import SNATCHED, DOWNLOADED, SKIPPED, UNAIRED, IGNORED, ARCHIVED, WANTED
 from sickbeard.exceptions import ex
 from sickbeard.webapi import Api
@@ -1735,7 +1735,7 @@ class NewHomeAddShows:
     @cherrypy.expose
     def addNewShow(self, whichSeries=None, tvdbLang="en", rootDir=None, defaultStatus=None,
                    anyQualities=None, bestQualities=None, seasonFolders=None, fullShowPath=None,
-                   other_shows=None, skipShow=None):
+                   other_shows=None, skipShow=None,audioLang=None):
         """
         Receive tvdb id, dir, and other options and create a show from them. If extra show dirs are
         provided then it forwards back to newShow, if not it goes to /home.
@@ -1815,7 +1815,7 @@ class NewHomeAddShows:
         newQuality = Quality.combineQualities(map(int, anyQualities), map(int, bestQualities))
         
         # add the show
-        sickbeard.showQueueScheduler.action.addShow(tvdb_id, show_dir, int(defaultStatus), newQuality, seasonFolders, tvdbLang) #@UndefinedVariable
+        sickbeard.showQueueScheduler.action.addShow(tvdb_id, show_dir, int(defaultStatus), newQuality, seasonFolders, tvdbLang,audioLang) #@UndefinedVariable
         ui.notifications.message('Show added', 'Adding the specified show into '+show_dir)
 
         return finishAddShow()
@@ -2311,7 +2311,7 @@ class Home:
         return result['description'] if result else 'Episode not found.'
 
     @cherrypy.expose
-    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None, customSearchNames=None):
+    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None, audioLang=None, audioLangs=None, customSearchNames=None):
 
         if show == None:
             errString = "Invalid show ID: "+str(show)
@@ -2364,6 +2364,13 @@ class Home:
         else:
             do_update = True
                     
+        if audioLang and audioLang in audioLanguages.keys():
+            audio_lang = audioLang
+        else:
+            audio_lang = showObj.audio_lang
+        
+        audio_langs = audioLangs
+            
 
         if type(anyQualities) != list:
             anyQualities = [anyQualities]
@@ -2386,6 +2393,8 @@ class Home:
             showObj.paused = paused
             showObj.air_by_date = air_by_date
             showObj.lang = tvdb_lang
+            showObj.audio_lang = audio_lang
+            showObj.audio_langs = audio_langs
             showObj.custom_search_names = customSearchNames
 
             # if we change location clear the db of episodes, change it, write to db, and rescan

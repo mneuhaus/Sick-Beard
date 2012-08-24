@@ -576,9 +576,9 @@ def getAllLanguages ():
     """
     myDB = db.DBConnection()
     
-    sqlLanguages = myDB.select("SELECT DISTINCT(t.lang) FROM tv_shows t, tv_episodes e WHERE t.tvdb_id = e.showid AND (e.status = ? OR e.status = ?)", [common.UNAIRED,common.WANTED])
+    sqlLanguages = myDB.select("SELECT DISTINCT(t.audio_lang) FROM tv_shows t, tv_episodes e WHERE t.tvdb_id = e.showid AND (e.status = ? OR e.status = ?)", [common.UNAIRED,common.WANTED])
     
-    languages = map(lambda x: str(x["lang"]), sqlLanguages)
+    languages = map(lambda x: str(x["audio_lang"]), sqlLanguages)
     
     return languages
 

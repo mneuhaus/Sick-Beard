@@ -188,7 +188,7 @@ class NewznabProvider(generic.NZBProvider):
 	def _doSearch(self, search_params, show=None):
 		
 		cat = '5030,5040'
-		if show and show.lang != u"en":
+		if show and show.audio_lang != u"en":
 			cat = '5020'
 
 		params = {"t": "tvsearch",

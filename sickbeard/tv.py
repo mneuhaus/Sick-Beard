@@ -47,7 +47,7 @@ from common import DOWNLOADED, SNATCHED, SNATCHED_PROPER, ARCHIVED, IGNORED, UNA
 
 class TVShow(object):
 
-    def __init__ (self, tvdbid, lang=""):
+    def __init__ (self, tvdbid, lang="", audio_lang="", audio_langs=""):
 
         self.tvdbid = tvdbid
 
@@ -67,6 +67,8 @@ class TVShow(object):
         self.paused = 0
         self.air_by_date = 0
         self.lang = lang
+        self.audio_lang = audio_lang
+        self.audio_langs = audio_langs
         self.custom_search_names = ""
 
         self.lock = threading.Lock()
@@ -107,6 +109,29 @@ class TVShow(object):
             raise exceptions.NoNFOException("Invalid folder for the show!")
 
     location = property(_getLocation, _setLocation)
+
+    def getLanguage(self):
+        if self.audio_lang == u'tvdb':
+            return self.lang
+
+        return self.audio_lang
+    
+    def getLanguages(self):
+        languages = []
+        for language in self.audio_langs.split("|"):
+            parts = language.split(":")
+            if parts[0] == u'tvdb':
+                parts[0] = self.lang
+            languages.append({'code': parts[0], 'satisfied': parts[1]})
+
+        return languages
+
+    def getLanguagesList(self):
+        languages = []
+        for language in self.getLanguages():
+            languages.append(language["code"])
+
+        return languages
 
     # delete references to anything that's not in the internal lists
     def flushEpisodes(self):
@@ -544,6 +569,12 @@ class TVShow(object):
             if self.lang == "":
                 self.lang = sqlResults[0]["lang"]
             
+            if self.audio_lang == "":
+                self.audio_lang = sqlResults[0]["audio_lang"]
+
+            if self.audio_langs == "":
+                self.audio_langs = sqlResults[0]["audio_langs"]
+
             if self.custom_search_names == "":  
                 self.custom_search_names = sqlResults[0]["custom_search_names"]
 
@@ -832,6 +863,8 @@ class TVShow(object):
                         "startyear": self.startyear,
                         "tvr_name": self.tvrname,
                         "lang": self.lang,
+                        "audio_lang": self.audio_lang,
+                        "audio_langs": self.audio_langs,
                         "custom_search_names": self.custom_search_names
                         }
 
@@ -945,7 +978,7 @@ def dirty_setter(attr_name):
 
 class TVEpisode(object):
 
-    def __init__(self, show, season, episode, file=""):
+    def __init__(self, show, season, episode, file="", audio_langs=""):
 
         self._name = ""
         self._season = season
@@ -956,6 +989,8 @@ class TVEpisode(object):
         self._hastbn = False
         self._status = UNKNOWN
         self._tvdbid = 0
+        
+        self.audio_langs = audio_langs
 
         # setting any of the above sets the dirty flag
         self.dirty = True
@@ -1457,8 +1492,6 @@ class TVEpisode(object):
 
         if naming_use_periods:
             finalName = re.sub("\s+", ".", finalName)
-
-        finalName = ''.join(i for i in finalName if i not in r'\/:*?"<>|')
 
         return finalName
 

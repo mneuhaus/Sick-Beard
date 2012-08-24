@@ -18,7 +18,7 @@
 
 import sickbeard
 
-from sickbeard.common import countryList, showLanguages
+from sickbeard.common import countryList, audioLanguages
 from sickbeard.helpers import sanitizeSceneName
 from sickbeard.scene_exceptions import get_scene_exceptions
 from sickbeard import logger
@@ -34,7 +34,7 @@ resultFilters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
                  "(dir|sample|nfo)fix", "sample", "(dvd)?extras"] 
                  
 
-def filterBadReleases(name,showLang=u"en"):
+def filterBadReleases(name,audioLang=u"en"):
     """
     Filters out non-english and just all-around stupid releases by comparing them
     to the resultFilters contents.
@@ -45,7 +45,7 @@ def filterBadReleases(name,showLang=u"en"):
     """
 
     additionalFilters = []
-    if showLang == u"en":
+    if audioLang == u"en":
         additionalFilters.append("dub(bed)?")
 
     try:
@@ -71,7 +71,7 @@ def filterBadReleases(name,showLang=u"en"):
 
     # if any of the bad strings are in the name then say no
     for x in resultFilters + sickbeard.IGNORE_WORDS.split(',') + additionalFilters:
-        if x == showLanguages.get(showLang):
+        if x == audioLanguages.get(audioLang):
             continue
         if re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
             logger.log(u"Invalid scene release: "+name+" contains "+x+", ignoring it", logger.DEBUG)
@@ -240,7 +240,8 @@ def allPossibleShowNames(show):
     """
 
     showNames = [show.name]
-    showNames += [name for name in string.split(show.custom_search_names, ",")]
+    if show.custom_search_names:
+        showNames += [name for name in string.split(show.custom_search_names, ",")]
     showNames += [name for name in get_scene_exceptions(show.tvdbid)]
 
     # if we have a tvrage name then use it

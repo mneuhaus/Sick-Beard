@@ -78,7 +78,7 @@ class NewzbinProvider(generic.NZBProvider):
         self.url = 'https://www.newzbin2.es/'
 
         self.NEWZBIN_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
-        
+
         self._language_codes = {'en':4096,
                                 'de':4,
                                 'fr':2}
@@ -142,7 +142,7 @@ class NewzbinProvider(generic.NZBProvider):
                             and ('720p' not in attrs['Video Fmt']) \
                             and ('1080p' not in attrs['Video Fmt']) \
                             and ('1080i' not in attrs['Video Fmt'])
-    						
+
         # Source: DVD
         source = 'Source' in attrs and 'DVD' in attrs['Source']
 
@@ -264,7 +264,7 @@ class NewzbinProvider(generic.NZBProvider):
         searchStr += " -subpack -extras"
 
         logger.log("Searching newzbin for string "+searchStr, logger.DEBUG)
-        
+
         return [searchStr]
 
     def _get_episode_search_strings(self, ep_obj):
@@ -275,7 +275,7 @@ class NewzbinProvider(generic.NZBProvider):
         else:
             searchStr = " OR ".join(['^"'+x+' - '+str(ep_obj.airdate)+'"' for x in nameList])
         return [searchStr]
-    
+
     def _get_languages(self, title=None, item=None):
         if not item:
             return u"en"
@@ -286,16 +286,16 @@ class NewzbinProvider(generic.NZBProvider):
             if attribute.getAttribute('type') == u"Language":
                 language = languageShortCode.get(helpers.get_xml_text(attribute).lower(), u"en")
                 languages.append(language)
-        
+
         return languages
 
     def _doSearch(self, searchStr, show=None):
 
         if show:
-            data = self._getRSSData(searchStr.encode('utf-8'),show.lang)
+            data = self._getRSSData(searchStr.encode('utf-8'),show.audio_lang)
         else:
             data = self._getRSSData(searchStr.encode('utf-8'))
-        
+
         item_list = []
 
         try:
@@ -329,16 +329,16 @@ class NewzbinProvider(generic.NZBProvider):
         return item_list
 
 
-    def _getRSSData(self, search=None,showLang=None):
-        
-        if not showLang:
+    def _getRSSData(self, search=None,audioLang=None):
+
+        if not audioLang:
             languages = helpers.getAllLanguages()
             englishOnly = len(filter(lambda x: not x == u"en", languages)) == 0
             languageCodes = map(lambda x: self._language_codes.get(x), languages)
             languageCode = sum(languageCodes)
         else:
-            englishOnly = showLang == u"en"
-            languageCode = self._language_codes.get(showLang)                    
+            englishOnly = audioLang == u"en"
+            languageCode = self._language_codes.get(audioLang)
 
         params = {
                 'searchaction': 'Search',
@@ -351,9 +351,9 @@ class NewzbinProvider(generic.NZBProvider):
                 'u_v3_retention': 0,
                 'ps_rb_video_format': 3082257,
                 'ps_rb_language': languageCode,
-                'sort': 'date',
+                'sort': 'ps_edit_date',
                 'order': 'desc',
-                'u_post_results_amt': 50,
+                'u_post_results_amt': 1000,
                 'feed': 'rss',
                 'hauth': 1,
         }
@@ -364,9 +364,9 @@ class NewzbinProvider(generic.NZBProvider):
             params['q'] = ''
 
         params['q'] += 'NOT Attr:VideoF=DVD'
-        
+
         if englishOnly:
-            params['q'] += ' AND Attr:Lang~Eng' 
+            params['q'] += ' AND Attr:Lang~Eng'
 
         url = self.url + "search/?%s" % urllib.urlencode(params)
         logger.log("Newzbin search URL: " + url, logger.DEBUG)
@@ -410,9 +410,18 @@ class NewzbinCache(tvcache.TVCache):
 
         logger.log("Found quality "+str(quality), logger.DEBUG)
 
+        for attribute in item.getElementsByTagName('report:attribute'):
+            if attribute.getAttribute('type') == u"Language":
+                language = languageShortCode.get(helpers.get_xml_text(attribute).lower(), u"en")
+                languages.append(language)
+
+        rsslang = ".".join(languages)
+
+        logger.log("Found languages "+str(rsslang), logger.DEBUG)
+
         logger.log("Adding item from RSS to cache: "+title, logger.DEBUG)
 
-        self._addCacheEntry(title, url, quality=quality)
+        self._addCacheEntry(title+rsslang, url, quality=quality)
 
 
 provider = NewzbinProvider()

@@ -59,7 +59,7 @@ class NZBMatrixProvider(generic.NZBProvider):
         # search for all show names and episode numbers like ("a","b","c") in a single search
         return ['("' + '","'.join(sceneSearchStrings) + '")']
     
-    def _get_language(self, title=None, item=None):
+    def _get_languages(self, title=None, item=None):
         if not title:
             return ['en']
         else:

@@ -356,11 +356,11 @@ class TVCache():
             except InvalidNameException:
                 logger.log(u"Unable to parse the filename "+curResult["name"]+" into a valid episode", logger.WARNING)
                 
-            if not parse_result.series_language == showObj.lang:
+            if not parse_result.series_language == showObj.audio_lang:
                 continue
 
             # skip non-tv crap (but allow them for Newzbin cause we assume it's filtered well)
-            if self.providerID != 'newzbin' and not show_name_helpers.filterBadReleases(curResult["name"],showObj.lang):
+            if self.providerID != 'newzbin' and not show_name_helpers.filterBadReleases(curResult["name"],showObj.audio_lang):
                 continue
             
             # get season and ep data (ignoring multi-eps for now)

@@ -29,7 +29,7 @@ import sickbeard
 from sickbeard import helpers, classes, logger, db
 
 from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT,\
-    showLanguages
+    audioLanguages
 from sickbeard import tvcache
 from sickbeard import encodingKludge as ek
 from sickbeard.exceptions import ex
@@ -271,11 +271,10 @@ class GenericProvider:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
             
-            if episode.show.lang not in languages:
-                logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + episode.show.lang)
+            if not self.resultMatchesLanguage(title, languages, episode.show):
                 continue
 
-            logger.log(u"Found result " + title + " at " + url + "[" + episode.show.lang + " in " + ",".join(languages) + "]", logger.DEBUG)
+            logger.log(u"Found result " + title + " at " + url + "[" + ",".join(languages) + "]", logger.DEBUG)
 
             result = self.getResult([episode])
             result.url = url
@@ -347,12 +346,11 @@ class GenericProvider:
             if not wantEp:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
-            
-            if show.lang not in languages:
-                logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + show.lang)
+                    
+            if not self.resultMatchesLanguage(title, languages, show):
                 continue
 
-            logger.log(u"Found result " + title + " at " + url + "[" + show.lang + " in " + ",".join(languages) + "]", logger.DEBUG)
+            logger.log(u"Found result " + title + " at " + url + "[" + ",".join(languages) + "]", logger.DEBUG)
 
             # make a result object
             epObj = []
@@ -381,6 +379,17 @@ class GenericProvider:
 
 
         return results
+
+    def resultMatchesLanguage(self, title, languages, show):
+        languageFound = False
+        for showLanguage in show.getLanguages():
+            if showLanguage['code'] in languages:
+                languageFound = True
+
+        if not languageFound:
+            logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + ",".join(show.getLanguagesList()))
+
+        return languageFound
 
     def findPropers(self, date=None):
 

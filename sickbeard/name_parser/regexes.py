@@ -17,7 +17,7 @@
 # along with Sick Beard.  If not, see <http://www.gnu.org/licenses/>.
 
 # all regexes are case insensitive
-from sickbeard.common import showLanguages
+from sickbeard.common import audioLanguages
 ep_regexes = [
               ('standard_repeat',
                # Show.Name.S01E02.S01E03.Source.Quality.Etc-Group
@@ -177,6 +177,6 @@ ep_regexes = [
 
 language_regexes = {}
 
-for k,v in showLanguages.iteritems():
+for k,v in audioLanguages.iteritems():
     language_regexes[k] = '(^|\w|[. _-])*('+v+')(([. _-])(dubbed))?\w*([. _-]|$)'
     

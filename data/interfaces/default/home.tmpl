@@ -90,11 +90,11 @@
 
 <table id="showListTable" class="sickbeardTable tablesorter" cellspacing="1" border="0" cellpadding="0">
 
-  <thead><tr><th class="nowrap">Next Ep</th><th>Show</th><th>Network</th><th>Quality</th><th>Downloads</th><th>Active</th><th>Status</th></tr></thead>
+  <thead><tr><th class="nowrap">Next Ep</th><th>Show</th><th>Network</th><th>Quality</th><th>Downloads</th><th>Active</th><th>Language</th><th>Status</th></tr></thead>
   <tfoot>
     <tr>
       <th rowspan="1" colspan="1" align="center"><a href="$sbRoot/home/addShows/">Add Show</a></th>
-      <th rowspan="1" colspan="6"></th>
+      <th rowspan="1" colspan="7"></th>
     </tr>
   </tfoot>
   <tbody>
@@ -168,6 +168,7 @@ $myShowList.sort(lambda x, y: cmp(x.name, y.name))
         </script>
     </td>
     <td align="center"><img src="$sbRoot/images/#if int($curShow.paused) == 0 and $curShow.status != "Ended" then "yes16.png\" alt=\"Y\"" else "no16.png\" alt=\"N\""# width="16" height="16" /></td>
+    <td>$curShow.audio_langs</td>
     <td align="center">$curShow.status</td>
   </tr>
 

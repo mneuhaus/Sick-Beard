@@ -241,12 +241,14 @@ countryList = {'Australia': 'AU',
                'USA': 'US'
                }
 
-showLanguages = {'de':'german',
+audioLanguages = {'tvdb': 'Same as TVDB Language',
+                 'de':'german',
                  'en':'english',
                  'fr':'french'
                  }
 
-languageShortCode = {'german':'de',
+languageShortCode = {'Same as TVDB Language': 'tvdb',
+                     'german':'de',
                      'english':'en',
                      'french':'fr'
                      }
