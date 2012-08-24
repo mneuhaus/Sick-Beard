@@ -128,8 +128,10 @@ def snatchEpisode(result, endStatus=SNATCHED):
 
     # don't notify when we re-download an episode
     for curEpObj in result.episodes:
+
         with curEpObj.lock:
             curEpObj.status = Quality.compositeStatus(endStatus, result.quality)
+            curEpObj.audio_langs = result.audio_langs
             curEpObj.saveToDB()
 
         if curEpObj.status not in Quality.DOWNLOADED:

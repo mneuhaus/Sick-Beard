@@ -280,6 +280,7 @@ class GenericProvider:
             result.url = url
             result.name = title
             result.quality = quality
+            result.audio_langs = languages
 
             results.append(result)
 
@@ -361,6 +362,7 @@ class GenericProvider:
             result.url = url
             result.name = title
             result.quality = quality
+            result.audio_langs = languages
 
             if len(epObj) == 1:
                 epNum = epObj[0].episode

@@ -961,9 +961,9 @@ class TVEpisode(object):
         self._hastbn = False
         self._status = UNKNOWN
         self._tvdbid = 0
-        self.audio_langs = audio_langs
         self._file_size = 0
         self._release_name = ''
+        self._audio_langs = ''
 
         # setting any of the above sets the dirty flag
         self.dirty = True
@@ -991,6 +991,7 @@ class TVEpisode(object):
     #location = property(lambda self: self._location, dirty_setter("_location"))
     file_size = property(lambda self: self._file_size, dirty_setter("_file_size"))
     release_name = property(lambda self: self._release_name, dirty_setter("_release_name"))
+    audio_langs = property(lambda self: self._audio_langs, dirty_setter("_audio_langs"))
 
     def _set_location(self, new_location):
         logger.log(u"Setter sets location to " + new_location, logger.DEBUG)
@@ -1099,6 +1100,9 @@ class TVEpisode(object):
             
             if sqlResults[0]["release_name"] != None:
                 self.release_name = sqlResults[0]["release_name"]
+
+            if sqlResults[0]["audio_langs"] != None:
+                self.audio_langs = str(sqlResults[0]["audio_langs"]).split("|")
 
             self.dirty = False
             return True
@@ -1305,6 +1309,7 @@ class TVEpisode(object):
         toReturn += "hasnfo: " + str(self.hasnfo) + "\n"
         toReturn += "hastbn: " + str(self.hastbn) + "\n"
         toReturn += "status: " + str(self.status) + "\n"
+        toReturn += "languages: " + ",".join(self.audio_langs) + "\n"
         return toReturn
 
     def createMetaFiles(self, force=False):
@@ -1380,11 +1385,12 @@ class TVEpisode(object):
                         "status": self.status,
                         "location": self.location,
                         "file_size": self.file_size,
-                        "release_name": self.release_name}
+                        "release_name": self.release_name,
+                        "audio_langs": "|".join(self.audio_langs)}
         controlValueDict = {"showid": self.show.tvdbid,
                             "season": self.season,
                             "episode": self.episode}
-
+        
         # use a custom update/insert method to get the data into the DB
         myDB.upsert("tv_episodes", newValueDict, controlValueDict)
 
