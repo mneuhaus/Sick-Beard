@@ -18,7 +18,7 @@
 
 import sickbeard
 
-from sickbeard.common import countryList
+from sickbeard.common import countryList, audioLanguages
 from sickbeard.helpers import sanitizeSceneName
 from sickbeard.scene_exceptions import get_scene_exceptions
 from sickbeard import logger
@@ -26,14 +26,15 @@ from sickbeard import db
 
 import re
 import datetime
+import string
 
 from name_parser.parser import NameParser, InvalidNameException
 
 resultFilters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
-                 "(dir|sample|nfo)fix", "sample", "(dvd)?extras", 
-                 "dub(bed)?"]
+                 "(dir|sample|nfo)fix", "sample", "(dvd)?extras"] 
+                 
 
-def filterBadReleases(name):
+def filterBadReleases(name, audioLangs=[u"en"]):
     """
     Filters out non-english and just all-around stupid releases by comparing them
     to the resultFilters contents.
@@ -42,6 +43,10 @@ def filterBadReleases(name):
     
     Returns: True if the release name is OK, False if it's bad.
     """
+
+    additionalFilters = []
+    if audioLangs == [u"en"]:
+        additionalFilters.append("dub(bed)?")
 
     try:
         fp = NameParser()
@@ -65,7 +70,10 @@ def filterBadReleases(name):
         return True
 
     # if any of the bad strings are in the name then say no
-    for x in resultFilters + sickbeard.IGNORE_WORDS.split(','):
+    for x in resultFilters + sickbeard.IGNORE_WORDS.split(',') + additionalFilters:
+        for audioLang in audioLangs:
+            if x == audioLanguages.get(audioLang):
+                continue
         if re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
             logger.log(u"Invalid scene release: "+name+" contains "+x+", ignoring it", logger.DEBUG)
             return False
@@ -233,6 +241,8 @@ def allPossibleShowNames(show):
     """
 
     showNames = [show.name]
+    if show.custom_search_names:
+        showNames += [name for name in string.split(show.custom_search_names, ",")]
     showNames += [name for name in get_scene_exceptions(show.tvdbid)]
 
     # if we have a tvrage name then use it

@@ -500,3 +500,27 @@ class RenameSeasonFolders(AddSizeAndSceneNameFields):
         self.connection.action("DROP TABLE tmp_tv_shows")
 
         self.incDBVersion()
+
+class AddCustomSearchNames (RenameSeasonFolders):
+    def test(self):
+        return self.hasColumn("tv_shows", "custom_search_names")
+
+    def execute(self):
+        self.addColumn("tv_shows", "custom_search_names", "TEXT", "")
+        self.incDBVersion()
+
+class AddShowLangs (AddCustomSearchNames):
+    def test(self):
+        return self.hasColumn("tv_shows", "audio_langs")
+    
+    def execute(self):
+        self.addColumn("tv_shows", "audio_langs", "TEXT", "en:0")
+        self.incDBVersion()
+
+class AddShowLangsToEpisode (AddShowLangs):
+    def test(self):
+        return self.hasColumn("tv_episodes", "audio_langs")
+    
+    def execute(self):
+        self.addColumn("tv_episodes", "audio_langs", "TEXT", "")
+        self.incDBVersion()

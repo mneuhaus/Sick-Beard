@@ -65,6 +65,86 @@ Note: This will only affect the language of the retrieved metadata file contents
 This <b>DOES NOT</b> allow Sick Beard to download non-english TV episodes!<br />
 <br />
 <br />
+
+
+Audio language:
+<p>
+    Activate this Checkbox if you're satisfied with this Language. If you leave it empty it download that language but keep looking for the one you're satisfied with
+</p>
+<input type="hidden" name="audioLangs" value="$show.audio_langs" />
+<ul class="audio-lang-select">
+    <li class="audio-language">
+        <select>
+        #for $k,$v in $common.audioLanguages.iteritems():
+        	<option value="$k">$v</option>
+        #end for
+        </select>
+        <input type="checkbox" value="1"/> 
+    </li>
+    <li>
+        <a href="#" class="add-language">Add Language</a>
+    </li>
+</ul>
+
+<script type="text/javascript" charset="utf-8">
+<!--
+\$(document).ready(function(){
+
+    var template = \$(".audio-lang-select li.audio-language").first().clone();
+    \$(".audio-lang-select li.audio-language").remove();
+    
+    \$(\$("input[name='audioLangs']").val().split("|")).each(function(){
+        var parts = this.split(":");
+
+        language = template.clone();
+        language.find("select").val(parts[0]);
+        if(parseInt(parts[1]) == 1)
+            language.find("input:checkbox").attr('checked', true);
+        else
+            language.find("input:checkbox").attr('checked', false);
+
+        \$(".audio-lang-select li").last().before(language);
+    });
+
+    function updateAudioSelectContext(){
+        var languages = \$(".audio-lang-select li.audio-language");
+        if (languages.length > 1) {
+            languages.find("input").css("visibility", "visible");
+        } else {
+            languages.find("input").css("visibility", "hidden").attr("value", "1");
+        }
+    }
+    updateAudioSelectContext();
+
+    var counter = 0;
+    \$(".add-language").click(function(){
+        counter++;
+        var template = \$(".audio-lang-select li.audio-language").first().clone();
+        template.html(template.html().replace(/\[0\]/g, "[" + counter + "]"));
+        \$(".audio-lang-select li.audio-language").last().after(template);
+        updateAudioSelectContext();
+        return false;
+    });
+
+    \$("form[action='editShow']").submit(function(){
+        var languages = \$(".audio-lang-select li.audio-language");
+        audioLangs = [];
+        languages.each(function(i){
+            var language = \$(this);
+            var satisfied = language.find("input:checkbox:checked").length;
+            audioLangs.push(language.find("select").val() + ":" + satisfied);
+        });
+        \$("input[name='audioLangs']").val(audioLangs.join("|"));
+    })
+
+});
+//-->
+</script>
+
+<br />
+Custom Search Names: <input type="text" name="customSearchNames" id="customSearchNames" value="$show.custom_search_names" size="50" /><br />
+Note: Custom names used to find show. Define some custom names if show can't be found. Custom names should be separated by ",". Keep empty to use default show name (based on metadata language)<br />
+<br />
 Flatten files (no folders): <input type="checkbox" name="flatten_folders" #if $show.flatten_folders == 1 and not $sickbeard.NAMING_FORCE_FOLDERS then "checked=\"checked\"" else ""# #if $sickbeard.NAMING_FORCE_FOLDERS then "disabled=\"disabled\"" else ""#/><br /><br />
 Paused: <input type="checkbox" name="paused" #if $show.paused == 1 then "checked=\"checked\"" else ""# /><br /><br />
 

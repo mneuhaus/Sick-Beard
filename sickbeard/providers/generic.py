@@ -28,7 +28,8 @@ import sickbeard
 
 from sickbeard import helpers, classes, logger, db
 
-from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT
+from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT,\
+    audioLanguages
 from sickbeard import tvcache
 from sickbeard import encodingKludge as ek
 from sickbeard.exceptions import ex
@@ -218,7 +219,10 @@ class GenericProvider:
         
         return (title, url)
     
-    def findEpisode (self, episode, manualSearch=False):
+    def _get_language(self,title=None,item=None):
+        return 'en'
+    
+    def findEpisode(self, episode, manualSearch=False):
 
         self._checkAuth()
 
@@ -251,6 +255,8 @@ class GenericProvider:
                 logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
                 continue
 
+            languages = self._get_languages(title,item)
+
             if episode.show.air_by_date:
                 if parse_result.air_date != episode.airdate:
                     logger.log("Episode "+title+" didn't air on "+str(episode.airdate)+", skipping it", logger.DEBUG)
@@ -265,7 +271,10 @@ class GenericProvider:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
 
-            logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+            if not self.resultMatchesLanguage(title, languages, episode.show):
+                continue
+
+            logger.log(u"Found result " + title + " at " + url + "[" + ",".join(languages) + "]", logger.DEBUG)
 
             result = self.getResult([episode])
             result.url = url
@@ -299,6 +308,8 @@ class GenericProvider:
             except InvalidNameException:
                 logger.log(u"Unable to parse the filename "+title+" into a valid episode", logger.WARNING)
                 continue
+
+            languages = self._get_languages(title,item)
 
             if not show.air_by_date:
                 # this check is meaningless for non-season searches
@@ -336,7 +347,10 @@ class GenericProvider:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
 
-            logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+            if not self.resultMatchesLanguage(title, languages, show):
+                continue
+
+            logger.log(u"Found result " + title + " at " + url + "[" + ",".join(languages) + "]", logger.DEBUG)
 
             # make a result object
             epObj = []
@@ -365,6 +379,17 @@ class GenericProvider:
 
 
         return results
+
+    def resultMatchesLanguage(self, title, languages, show):
+        languageFound = False
+        for showLanguage in show.getLanguages():
+            if showLanguage['code'] in languages:
+                languageFound = True
+
+        if not languageFound:
+            logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + ",".join(show.getLanguagesList()))
+
+        return languageFound
 
     def findPropers(self, date=None):
 
