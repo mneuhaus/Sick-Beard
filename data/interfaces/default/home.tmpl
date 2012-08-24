@@ -168,7 +168,11 @@ $myShowList.sort(lambda x, y: cmp(x.name, y.name))
         </script>
     </td>
     <td align="center"><img src="$sbRoot/images/#if int($curShow.paused) == 0 and $curShow.status != "Ended" then "yes16.png\" alt=\"Y\"" else "no16.png\" alt=\"N\""# width="16" height="16" /></td>
-    <td>$curShow.audio_langs</td>
+    <td>
+        #for $language in $curShow.getLanguagesList:
+            <img src="$sbRoot/images/flags/${language}.png" alt="$language" width="16" />
+        #end for
+    </td>
     <td align="center">$curShow.status</td>
   </tr>
 

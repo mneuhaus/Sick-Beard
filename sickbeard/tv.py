@@ -122,7 +122,13 @@ class TVShow(object):
             parts = language.split(":")
             if parts[0] == u'tvdb':
                 parts[0] = self.lang
-            languages.append({'code': parts[0], 'satisfied': parts[1]})
+            
+            if len(parts) > 1 :
+                satisfied = parts[1]
+            else:
+                satisfied = 0
+
+            languages.append({'code': parts[0], 'satisfied': satisfied})
 
         return languages
 
@@ -989,7 +995,7 @@ class TVEpisode(object):
         self._hastbn = False
         self._status = UNKNOWN
         self._tvdbid = 0
-        
+
         self.audio_langs = audio_langs
 
         # setting any of the above sets the dirty flag
