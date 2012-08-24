@@ -75,7 +75,7 @@ class NewzbinProvider(generic.NZBProvider):
 
         self.cache = NewzbinCache(self)
 
-        self.url = 'https://www.newzbin2.es/'
+        self.url = 'http://www.newzbin2.es/'
 
         self.NEWZBIN_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
 
