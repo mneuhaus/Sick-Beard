@@ -2312,12 +2312,17 @@ class Home:
             tvdb_lang = showObj.lang
 
         # if we changed the language then kick off an update
-        if tvdb_lang == showObj.lang and customSearchNames == showObj.custom_search_names:
+        if tvdb_lang == showObj.lang and audioLangs == showObj.audio_langs and customSearchNames == showObj.custom_search_names:
             do_update = False
         else:
             do_update = True
-        
+
         audio_langs = audioLangs
+        # if we changed the audio_langs trigger an backlog
+        if not audio_langs == showObj.audio_langs:
+            sickbeard.backlogSearchScheduler.action.searchBacklog([showObj])
+            msg = "Backlog was automatically started for the show: <b>"+showObj.name+"</b><br />"
+            ui.notifications.message("Backlog started", msg)
             
 
         if type(anyQualities) != list:
