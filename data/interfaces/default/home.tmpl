@@ -169,7 +169,7 @@ $myShowList.sort(lambda x, y: cmp(x.name, y.name))
     </td>
     <td align="center"><img src="$sbRoot/images/#if int($curShow.paused) == 0 and $curShow.status != "Ended" then "yes16.png\" alt=\"Y\"" else "no16.png\" alt=\"N\""# width="16" height="16" /></td>
     <td>
-        #if len($curShow.getLanguagesList) > 1:
+        #if len($curShow.getLanguagesList) > 0:
             #for $language in $curShow.getLanguagesList:
                 <img src="$sbRoot/images/flags/${language}.png" alt="$language" width="16" />
             #end for
