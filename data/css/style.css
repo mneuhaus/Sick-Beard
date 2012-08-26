@@ -1282,3 +1282,29 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#51a9c4', endColorstr='#2d88a1', GradientType=0);
 }
 */
+.audio-lang-select {
+  overflow: hidden;
+}
+
+.audio-lang-select li {
+  list-style: none;
+  margin-bottom: 5px;
+  padding: 5px;
+  border: 1px solid #eee;
+  float: left;
+  clear: both;
+  width: 260px;
+}
+.audio-lang-select li i.icon-resize-vertical {
+  margin-left: 10px;
+}
+.audio-lang-select li input {
+  margin-left: 10px;
+}
+
+.audio-lang-select .ui-state-highlight {
+  height: 28px;
+  line-height: 18px;
+  width: 260px;
+}
+

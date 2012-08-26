@@ -72,81 +72,21 @@ Audio language:
     Activate this Checkbox if you're satisfied with this Language. If you leave it empty it download that language but keep looking for the one you're satisfied with
 </p>
 <input type="hidden" name="audioLangs" value="$show.audio_langs" />
-<ul class="audio-lang-select">
+<ul class="audio-lang-select ui-sortable">
     <li class="audio-language">
+        <i class="icon-remove"></i>
         <select>
         #for $k,$v in $common.audioLanguages.iteritems():
         	<option value="$k">$v</option>
         #end for
         </select>
         <input type="checkbox" value="1"/> 
-    </li>
-    <li>
-        <a href="#" class="add-language">Add Language</a>
+        <i class="icon-resize-vertical"></i>
     </li>
 </ul>
+<a href="#" class="add-language btn">Add Language</a>
 
-<script type="text/javascript" charset="utf-8">
-<!--
-\$(document).ready(function(){
-
-    var template = \$(".audio-lang-select li.audio-language").first().clone();
-    \$(".audio-lang-select li.audio-language").remove();
-    
-    \$(\$("input[name='audioLangs']").val().split("|")).each(function(){
-        var parts = this.split(":");
-
-        language = template.clone();
-        language.find("select").val(parts[0]);
-        if(parseInt(parts[1]) == 1)
-            language.find("input:checkbox").attr('checked', true);
-        else
-            language.find("input:checkbox").attr('checked', false);
-
-        \$(".audio-lang-select li").last().before(language);
-    });
-
-    function updateAudioSelectContext(){
-        var languages = \$(".audio-lang-select li.audio-language");
-        if (languages.length > 1) {
-            languages.find("input").css("visibility", "visible");
-        } else {
-            languages.find("input").css("visibility", "hidden").attr("value", "1");
-        }
-    }
-    updateAudioSelectContext();
-
-
-    function updateAudioLanguages(){
-        var languages = \$(".audio-lang-select li.audio-language");
-        audioLangs = [];
-        languages.each(function(i){
-            var language = \$(this);
-            var satisfied = language.find("input:checkbox:checked").length;
-            audioLangs.push(language.find("select").val() + ":" + satisfied);
-        });
-        \$("input[name='audioLangs']").val(audioLangs.join("|"));
-    }
-    updateAudioLanguages();
-
-    var counter = 0;
-    \$(".add-language").click(function(){
-        counter++;
-        var template = \$(".audio-lang-select li.audio-language").first().clone();
-        template.html(template.html().replace(/\[0\]/g, "[" + counter + "]"));
-        \$(".audio-lang-select li.audio-language").last().after(template);
-        updateAudioSelectContext();
-        updateAudioLanguages();
-        return false;
-    });
-
-    \$(".audio-lang-select").find("input, select").live("change", function(){
-        updateAudioLanguages();
-    })
-
-});
-//-->
-</script>
+<script type="text/javascript" src="$sbRoot/js/multiLanguageWidget.js"></script>
 
 <br />
 Custom Search Names: <input type="text" name="customSearchNames" id="customSearchNames" value="$show.custom_search_names" size="50" /><br />
