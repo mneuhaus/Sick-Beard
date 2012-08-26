@@ -125,9 +125,6 @@ def snatchEpisode(result, endStatus=SNATCHED):
         return False
 
     history.logSnatch(result)
-
-    if not result.containsSatisfactoryLanguages():
-        endStatus = UNSATISFIED
     
     # don't notify when we re-download an episode
     for curEpObj in result.episodes:
