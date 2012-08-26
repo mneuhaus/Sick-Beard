@@ -30,7 +30,7 @@ import generic
 
 import sickbeard.encodingKludge as ek
 from sickbeard import classes, logger, helpers, exceptions, show_name_helpers, tvcache, common
-from sickbeard.common import Quality, languageShortCode
+from sickbeard.common import Quality, languageShortCode, audioLanguages
 from sickbeard.exceptions import ex
 from lib.dateutil.parser import parse as parseDate
 from sickbeard.name_parser.parser import NameParser, InvalidNameException
@@ -328,16 +328,16 @@ class NewzbinProvider(generic.NZBProvider):
         return item_list
 
 
-    def _getRSSData(self, search=None,audioLang=None):
+    def _getRSSData(self, search=None, audioLangs=None):
 
-        if not audioLang:
+        if not audioLangs == None and len(audioLangs) > 0:
+            englishOnly = audioLangs == u"en"
+            languageCode = self._language_codes.get(audioLangs)
+        else:
             languages = helpers.getAllLanguages()
             englishOnly = len(filter(lambda x: not x == u"en", languages)) == 0
             languageCodes = map(lambda x: self._language_codes.get(x), languages)
-            languageCode = sum(languageCodes)
-        else:
-            englishOnly = audioLang == u"en"
-            languageCode = self._language_codes.get(audioLang)
+            languageCode = languageCodes[0]
 
         params = {
                 'searchaction': 'Search',
@@ -412,10 +412,10 @@ class NewzbinCache(tvcache.TVCache):
         languages = []
         for attribute in item.getElementsByTagName('report:attribute'):
             if attribute.getAttribute('type') == u"Language":
-                language = languageShortCode.get(helpers.get_xml_text(attribute).lower(), u"en")
+                language = audioLanguages.get(helpers.get_xml_text(attribute).lower(), u"english")
                 languages.append(language)
 
-        rsslang = ".".join(languages)
+        rsslang = ",".join(languages)
 
         logger.log("Found languages "+str(rsslang), logger.DEBUG)
 
