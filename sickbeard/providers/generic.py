@@ -267,12 +267,12 @@ class GenericProvider:
 
             quality = self.getQuality(item)
 
-            if not episode.show.wantEpisode(episode.season, episode.episode, quality, manualSearch):
+            if not episode.show.wantEpisode(episode.season, episode.episode, quality, manualSearch, title, languages):
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
                 continue
 
-            if not self.resultMatchesLanguage(title, languages, episode.show):
-                continue
+            #if not self.resultMatchesLanguage(title, languages, episode.show):
+            #    continue
 
             logger.log(u"Found result " + title + " at " + url + "[" + ",".join(languages) + "]", logger.DEBUG)
 
@@ -340,15 +340,12 @@ class GenericProvider:
             # make sure we want the episode
             wantEp = True
             for epNo in actual_episodes:
-                if not show.wantEpisode(actual_season, epNo, quality):
+                if not show.wantEpisode(actual_season, epNo, quality, False, title, languages):
                     wantEp = False
                     break
             
             if not wantEp:
                 logger.log(u"Ignoring result "+title+" because we don't want an episode that is "+Quality.qualityStrings[quality], logger.DEBUG)
-                continue
-
-            if not self.resultMatchesLanguage(title, languages, show):
                 continue
 
             logger.log(u"Found result " + title + " at " + url + "[" + ",".join(languages) + "]", logger.DEBUG)

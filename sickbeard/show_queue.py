@@ -116,7 +116,6 @@ class ShowQueue(generic_queue.GenericQueue):
         return queueItemObj
 
     def addShow(self, tvdb_id, showDir, default_status=None, quality=None, flatten_folders=None, lang="en", audio_langs=["en"]):
-        print audio_langs
         queueItemObj = QueueItemAdd(tvdb_id, showDir, default_status, quality, flatten_folders, lang, audio_langs)        
         
         self.add_item(queueItemObj)
@@ -175,7 +174,6 @@ class QueueItemAdd(ShowQueueItem):
         self.flatten_folders = flatten_folders
         self.lang = lang
         self.audio_langs = audio_langs
-        print audio_langs
 
         self.show = None
 

@@ -335,6 +335,7 @@ class Manage:
             epCounts[Overview.QUAL] = 0
             epCounts[Overview.GOOD] = 0
             epCounts[Overview.UNAIRED] = 0
+            epCounts[Overview.LANG] = 0
 
             sqlResults = myDB.select("SELECT * FROM tv_episodes WHERE showid = ? ORDER BY season*1000+episode DESC", [curShow.tvdbid])
 
@@ -1687,7 +1688,7 @@ class NewHomeAddShows:
         Receive tvdb id, dir, and other options and create a show from them. If extra show dirs are
         provided then it forwards back to newShow, if not it goes to /home.
         """
-        print audioLangs
+
         # grab our list of other dirs if given
         if not other_shows:
             other_shows = []
@@ -2233,6 +2234,7 @@ class Home:
         epCounts[Overview.QUAL] = 0
         epCounts[Overview.GOOD] = 0
         epCounts[Overview.UNAIRED] = 0
+        epCounts[Overview.LANG] = 0
 
         for curResult in sqlResults:
 

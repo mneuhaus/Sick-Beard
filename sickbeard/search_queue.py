@@ -182,7 +182,7 @@ class BacklogQueueItem(generic_queue.QueueItem):
 
         # see if there is anything in this season worth searching for
         if not self.show.air_by_date:
-            statusResults = myDB.select("SELECT status FROM tv_episodes WHERE showid = ? AND season = ?", [self.show.tvdbid, self.segment])
+            statusResults = myDB.select("SELECT status, audio_langs FROM tv_episodes WHERE showid = ? AND season = ?", [self.show.tvdbid, self.segment])
         else:
             segment_year, segment_month = map(int, self.segment.split('-'))
             min_date = datetime.date(segment_year, segment_month, 1)
@@ -193,7 +193,7 @@ class BacklogQueueItem(generic_queue.QueueItem):
             else:
                 max_date = datetime.date(segment_year, segment_month+1, 1) - datetime.timedelta(days=1)
 
-            statusResults = myDB.select("SELECT status FROM tv_episodes WHERE showid = ? AND airdate >= ? AND airdate <= ?",
+            statusResults = myDB.select("SELECT status, audio_langs FROM tv_episodes WHERE showid = ? AND airdate >= ? AND airdate <= ?",
                                         [self.show.tvdbid, min_date.toordinal(), max_date.toordinal()])
             
         anyQualities, bestQualities = common.Quality.splitQuality(self.show.quality) #@UnusedVariable
@@ -204,7 +204,7 @@ class BacklogQueueItem(generic_queue.QueueItem):
         generic_queue.QueueItem.execute(self)
 
         results = search.findSeason(self.show, self.segment)
-
+        
         # download whatever we find
         for curResult in results:
             search.snatchEpisode(curResult)
@@ -225,6 +225,10 @@ class BacklogQueueItem(generic_queue.QueueItem):
                 highestBestQuality = max(bestQualities)
             else:
                 highestBestQuality = 0
+            
+            # if there is an episode with a language we're not satisfied with we'll keep looking
+            if not self.show.satisfiedWithLanguages(str(curStatusResult["audio_langs"]).split("|")):
+                wantSeason = True
 
             # if we need a better one then say yes
             if (curStatus in (common.DOWNLOADED, common.SNATCHED, common.SNATCHED_PROPER) and curQuality < highestBestQuality) or curStatus == common.WANTED:

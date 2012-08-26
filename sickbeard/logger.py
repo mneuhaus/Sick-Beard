@@ -22,6 +22,7 @@ import os
 import threading
 
 import logging
+import logging.handlers
 
 import sickbeard
 
@@ -83,6 +84,7 @@ class SBRotatingLogHandler(object):
         """
         Configure a file handler to log at file_name and return it.
         """
+        #return logging.handlers.SocketHandler('localhost', 9020)
     
         file_handler = logging.FileHandler(self.log_file)
         file_handler.setLevel(logging.DEBUG)

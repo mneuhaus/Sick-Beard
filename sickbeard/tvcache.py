@@ -345,13 +345,13 @@ class TVCache():
         # for each cache entry
         for curResult in sqlResults:
 
-            # skip non-tv crap (but allow them for Newzbin cause we assume it's filtered well)
-            if self.providerID != 'newzbin' and not show_name_helpers.filterBadReleases(curResult["name"]):
-                continue
-
             # get the show object, or if it's not one of our shows then ignore it
             showObj = helpers.findCertainShow(sickbeard.showList, int(curResult["tvdbid"]))
             if not showObj:
+                continue
+
+            # skip non-tv crap (but allow them for Newzbin cause we assume it's filtered well)
+            if self.providerID != 'newzbin' and not show_name_helpers.filterBadReleases(curResult["name"], showObj.getLanguagesList()):
                 continue
 
             # get season and ep data (ignoring multi-eps for now)

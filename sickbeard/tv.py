@@ -42,7 +42,7 @@ from sickbeard import postProcessor
 from sickbeard import encodingKludge as ek
 
 from common import Quality, Overview
-from common import DOWNLOADED, SNATCHED, SNATCHED_PROPER, ARCHIVED, IGNORED, UNAIRED, WANTED, SKIPPED, UNKNOWN
+from common import DOWNLOADED, SNATCHED, SNATCHED_PROPER, ARCHIVED, IGNORED, UNAIRED, WANTED, SKIPPED, UNKNOWN, UNSATISFIED
 from common import NAMING_DUPLICATE, NAMING_EXTEND, NAMING_LIMITED_EXTEND, NAMING_SEPARATED_REPEAT
 
 class TVShow(object):
@@ -131,6 +131,19 @@ class TVShow(object):
             languages.append(language["code"])
 
         return languages
+
+    def satisfiedWithLanguages(self, audio_langs):
+        for language in self.getLanguages():
+            if int(language["satisfied"]) == 0:
+                continue
+
+            if language["code"] in audio_langs:
+                return True
+
+        return False
+
+    def satisfiedWithCurrentLanguages(self):
+        return self.satisfiedWithLanguages(self.getLanguagesList())
 
     # delete references to anything that's not in the internal lists
     def flushEpisodes(self):
@@ -861,7 +874,7 @@ class TVShow(object):
         return toReturn
 
 
-    def wantEpisode(self, season, episode, quality, manualSearch=False):
+    def wantEpisode(self, season, episode, quality, manualSearch=False, title="", languages=[]):
 
         logger.log(u"Checking if we want episode "+str(season)+"x"+str(episode)+" at quality "+Quality.qualityStrings[quality], logger.DEBUG)
 
@@ -874,7 +887,30 @@ class TVShow(object):
             return False
 
         myDB = db.DBConnection()
-        sqlResults = myDB.select("SELECT status FROM tv_episodes WHERE showid = ? AND season = ? AND episode = ?", [self.tvdbid, season, episode])
+        sqlResults = myDB.select("SELECT status, audio_langs FROM tv_episodes WHERE showid = ? AND season = ? AND episode = ?", [self.tvdbid, season, episode])
+
+        
+        currentLanguages = sqlResults[0]["audio_langs"].split("|")
+        # satisfiedWithCurrentLanguages = self.satisfiedWithLanguages(currentLanguages)
+        # satisfiedWithLanguages = self.satisfiedWithLanguages(languages)
+        # resultMatchesLanguage = self.resultMatchesLanguage(title, languages)
+        # from pudb import set_trace; set_trace()
+        
+        # We've got an result with a language we're satisfied with, but the result doesn't contain a language
+        # we're satisfied with, so we don't care if it might be a better quality and skip it.
+        if self.satisfiedWithLanguages(currentLanguages) and not self.satisfiedWithLanguages(languages):
+            logger.log(u"We don't want that ep, because the language isn't satisfactory", logger.DEBUG)
+            return False
+
+        if not self.satisfiedWithLanguages(currentLanguages) and self.satisfiedWithLanguages(languages):
+            logger.log(u"Just get it!, i don't care about the quality, it's a language i'm satisfied with and i not satisfied yet", logger.DEBUG)
+            return True
+
+        if not self.resultMatchesLanguage(title, languages):
+            logger.log(u"We don't want that ep, because it doesn't contain any language i want", logger.DEBUG)
+            return False
+
+        logger.log(u"Great, that episodes contains " + ",".join(languages), logger.DEBUG)
 
         if not sqlResults or not len(sqlResults):
             logger.log(u"Unable to find the episode", logger.DEBUG)
@@ -910,6 +946,16 @@ class TVShow(object):
         logger.log(u"None of the conditions were met so I'm just saying no", logger.DEBUG)
         return False
 
+    def resultMatchesLanguage(self, title, languages):
+        languageFound = False
+        for showLanguage in self.getLanguages():
+            if showLanguage['code'] in languages:
+                languageFound = True
+
+        if not languageFound:
+            logger.log(u"Ignoring result "+title+" because the language: " + ",".join(languages) + " does not match the desired language: " + ",".join(self.getLanguagesList()))
+
+        return languageFound
 
     def getOverview(self, epStatus):
 
@@ -919,10 +965,11 @@ class TVShow(object):
             return Overview.UNAIRED
         elif epStatus in (SKIPPED, IGNORED):
             return Overview.SKIPPED
+        elif epStatus in Quality.UNSATISFIED:
+            return Overview.LANG
         elif epStatus == ARCHIVED:
             return Overview.GOOD
-        elif epStatus in Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_PROPER:
-
+        elif epStatus in Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_PROPER + Quality.UNSATISFIED:
             anyQualities, bestQualities = Quality.splitQuality(self.quality) #@UnusedVariable
             if bestQualities:
                 maxBestQuality = max(bestQualities)

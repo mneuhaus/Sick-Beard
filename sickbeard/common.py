@@ -52,6 +52,7 @@ SKIPPED = 5 # episodes we don't want
 ARCHIVED = 6 # episodes that you don't have locally (counts toward download completion stats)
 IGNORED = 7 # episodes that you don't want included in your download stats
 SNATCHED_PROPER = 9 # qualified with quality
+UNSATISFIED = 10 # qualified with quality
 
 NAMING_REPEAT = 1
 NAMING_EXTEND = 2
@@ -193,6 +194,7 @@ class Quality:
 Quality.DOWNLOADED = [Quality.compositeStatus(DOWNLOADED, x) for x in Quality.qualityStrings.keys()]
 Quality.SNATCHED = [Quality.compositeStatus(SNATCHED, x) for x in Quality.qualityStrings.keys()]
 Quality.SNATCHED_PROPER = [Quality.compositeStatus(SNATCHED_PROPER, x) for x in Quality.qualityStrings.keys()]
+Quality.UNSATISFIED = [Quality.compositeStatus(UNSATISFIED, x) for x in Quality.qualityStrings.keys()]
 
 HD = Quality.combineQualities([Quality.HDTV, Quality.HDWEBDL, Quality.HDBLURAY], [])
 SD = Quality.combineQualities([Quality.SDTV, Quality.SDDVD], [])
@@ -214,10 +216,11 @@ class StatusStrings:
                               SNATCHED_PROPER: "Snatched (Proper)",
                               WANTED: "Wanted",
                               ARCHIVED: "Archived",
-                              IGNORED: "Ignored"}
+                              IGNORED: "Ignored",
+                              UNSATISFIED: "Unsatisfied"}
 
     def __getitem__(self, name):
-        if name in Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_PROPER:
+        if name in Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_PROPER + Quality.UNSATISFIED:
             status, quality = Quality.splitCompositeStatus(name)
             if quality == Quality.NONE:
                 return self.statusStrings[status]
@@ -237,12 +240,14 @@ class Overview:
     WANTED = WANTED # 3
     GOOD = 4
     SKIPPED = SKIPPED # 5
+    LANG = 6
 
     overviewStrings = {SKIPPED: "skipped",
                        WANTED: "wanted",
                        QUAL: "qual",
                        GOOD: "good",
-                       UNAIRED: "unaired"}
+                       UNAIRED: "unaired",
+                       LANG: "wanted"}
 
 # Get our xml namespaces correct for lxml
 XML_NSMAP = {'xsi': 'http://www.w3.org/2001/XMLSchema-instance',

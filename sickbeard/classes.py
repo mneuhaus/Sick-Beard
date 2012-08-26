@@ -106,6 +106,9 @@ class SearchResult:
     def fileName(self):
         return self.episodes[0].prettyName() + "." + self.resultType
 
+    def containsSatisfactoryLanguages(self):
+        return self.episodes[0].show.satisfiedWithLanguages(self.audio_langs)
+
 class NZBSearchResult(SearchResult):
     """
     Regular NZB result with an URL to the NZB

@@ -34,7 +34,7 @@ resultFilters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
                  "(dir|sample|nfo)fix", "sample", "(dvd)?extras"] 
                  
 
-def filterBadReleases(name, audioLangs=[u"en"]):
+def filterBadReleases(name, audioLangs=[]):
     """
     Filters out non-english and just all-around stupid releases by comparing them
     to the resultFilters contents.
@@ -69,11 +69,14 @@ def filterBadReleases(name, audioLangs=[u"en"]):
     if not check_string:
         return True
 
+    logger.log(u"Current Audio Languages: " + ",".join(audioLangs), logger.DEBUG)
     # if any of the bad strings are in the name then say no
     for x in resultFilters + sickbeard.IGNORE_WORDS.split(',') + additionalFilters:
         for audioLang in audioLangs:
+            logger.log(u"Checking if the Language is a word to Ignore:" + x + ":" + audioLanguages.get(audioLang), logger.DEBUG)
             if x == audioLanguages.get(audioLang):
                 continue
+
         if re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
             logger.log(u"Invalid scene release: "+name+" contains "+x+", ignoring it", logger.DEBUG)
             return False

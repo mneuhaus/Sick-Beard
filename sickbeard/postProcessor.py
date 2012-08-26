@@ -679,7 +679,7 @@ class PostProcessor(object):
         """
         
         # if SB downloaded this on purpose then this is a priority download
-        if self.in_history or ep_obj.status in common.Quality.SNATCHED + common.Quality.SNATCHED_PROPER:
+        if self.in_history or ep_obj.status in common.Quality.SNATCHED + common.Quality.SNATCHED_PROPER + common.Quality.UNSATISFIED:
             self._log(u"SB snatched this episode so I'm marking it as priority", logger.DEBUG)
             return True
         
@@ -796,7 +796,10 @@ class PostProcessor(object):
                 else:
                     logger.log("good results: "+repr(self.good_results), logger.DEBUG)
 
-                cur_ep.status = common.Quality.compositeStatus(common.DOWNLOADED, new_ep_quality)
+                if not cur_ep.show.satisfiedWithLanguages(cur_ep.audio_langs):
+                    cur_ep.status = common.Quality.compositeStatus(common.UNSATISFIED, new_ep_quality)
+                else:
+                    cur_ep.status = common.Quality.compositeStatus(common.DOWNLOADED, new_ep_quality)
                 
                 cur_ep.saveToDB()
 

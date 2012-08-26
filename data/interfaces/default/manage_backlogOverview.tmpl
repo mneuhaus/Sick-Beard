@@ -11,10 +11,12 @@
 
 #set $totalWanted = 0
 #set $totalQual = 0
+#set $totalLang = 0
 
 #for $curShow in $sickbeard.showList:
 #set $totalWanted = $totalWanted + $showCounts[$curShow.tvdbid][$Overview.WANTED]
 #set $totalQual = $totalQual + $showCounts[$curShow.tvdbid][$Overview.QUAL]
+#set $totalLang = $totalLang + $showCounts[$curShow.tvdbid][$Overview.LANG]
 #end for
 
 <div class="h2footer align-right">
@@ -25,8 +27,7 @@
 <table class="sickbeardTable" cellspacing="1" border="0" cellpadding="0">
 
 #for $curShow in sorted($sickbeard.showList, key=operator.attrgetter('name')):
-
-#if $showCounts[$curShow.tvdbid][$Overview.QUAL]+$showCounts[$curShow.tvdbid][$Overview.WANTED] == 0:
+#if $showCounts[$curShow.tvdbid][$Overview.QUAL]+$showCounts[$curShow.tvdbid][$Overview.WANTED]+$showCounts[$curShow.tvdbid][$Overview.LANG] == 0:
 #continue
 #end if
 
@@ -39,6 +40,7 @@
         <div class="float-right clearfix">
             <label for="wanted" class="checkbox inline wanted">Wanted: <b>$showCounts[$curShow.tvdbid][$Overview.WANTED]</b></label>
             <label for="qual" class="checkbox inline qual">Low Quality: <b>$showCounts[$curShow.tvdbid][$Overview.QUAL]</b></label>
+            <label for="qual" class="checkbox inline qual">Language: <b>$showCounts[$curShow.tvdbid][$Overview.LANG]</b></label>
             <a class="btn btn-mini btn-inverse forceBacklog" href="$sbRoot/manage/backlogShow?tvdb_id=$curShow.tvdbid"><i class="icon-play-circle icon-white"></i> Force Backlog</a>
         </div>
     </td>
@@ -49,7 +51,7 @@
 #for $curResult in $showSQLResults[$curShow.tvdbid]:
 #set $whichStr = $str($curResult["season"]) + "x" + $str($curResult["episode"])
 #set $overview = $showCats[$curShow.tvdbid][$whichStr]
-#if $overview not in ($Overview.QUAL, $Overview.WANTED):
+#if $overview not in ($Overview.QUAL, $Overview.WANTED, $Overview.LANG):
 #continue
 #end if
   <tr class="$Overview.overviewStrings[$showCats[$curShow.tvdbid][$whichStr]]">
