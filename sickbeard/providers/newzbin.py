@@ -412,10 +412,12 @@ class NewzbinCache(tvcache.TVCache):
         languages = []
         for attribute in item.getElementsByTagName('report:attribute'):
             if attribute.getAttribute('type') == u"Language":
-                language = audioLanguages.get(helpers.get_xml_text(attribute).lower(), u"english")
+                language = helpers.get_xml_text(attribute).lower()
                 languages.append(language)
+        
+        languages.push("english")
 
-        rsslang = ",".join(languages)
+        rsslang = languages[0]
 
         logger.log("Found languages "+str(rsslang), logger.DEBUG)
 
