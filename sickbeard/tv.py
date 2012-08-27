@@ -891,11 +891,11 @@ class TVShow(object):
 
         
         currentLanguages = sqlResults[0]["audio_langs"].split("|")
-        # satisfiedWithCurrentLanguages = self.satisfiedWithLanguages(currentLanguages)
-        # satisfiedWithLanguages = self.satisfiedWithLanguages(languages)
-        # resultMatchesLanguage = self.resultMatchesLanguage(title, languages)
-        # from pudb import set_trace; set_trace()
-        
+        satisfiedWithCurrentLanguages = self.satisfiedWithLanguages(currentLanguages)
+        satisfiedWithLanguages = self.satisfiedWithLanguages(languages)
+        resultMatchesLanguage = self.resultMatchesLanguage(title, languages)
+        logger.log(u"Satisfied: " + str(satisfiedWithCurrentLanguages) + ", CurrentLanguages:" + str(currentLanguages) + ", Result Languages:" + str(languages), logger.DEBUG)
+
         # We've got an result with a language we're satisfied with, but the result doesn't contain a language
         # we're satisfied with, so we don't care if it might be a better quality and skip it.
         if self.satisfiedWithLanguages(currentLanguages) and not self.satisfiedWithLanguages(languages):
