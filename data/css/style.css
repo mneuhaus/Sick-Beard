@@ -1293,10 +1293,10 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
   border: 1px solid #eee;
   float: left;
   clear: both;
-  width: 260px;
 }
 .audio-lang-select li i.icon-resize-vertical {
   margin-left: 10px;
+  margin-right: 5px;
 }
 .audio-lang-select li input {
   margin-left: 10px;
