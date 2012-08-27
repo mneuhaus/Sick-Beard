@@ -332,7 +332,7 @@ class NewzbinProvider(generic.NZBProvider):
 
         if not audioLangs == None and len(audioLangs) > 0:
             englishOnly = audioLangs == u"en"
-            languageCode = self._language_codes.get(audioLangs)
+            languageCode = self._language_codes.get(audioLangs[0])
         else:
             languages = helpers.getAllLanguages()
             englishOnly = len(filter(lambda x: not x == u"en", languages)) == 0
