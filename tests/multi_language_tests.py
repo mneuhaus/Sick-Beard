@@ -22,14 +22,19 @@ import unittest
 
 import test_lib as test
 
-import sys, os.path
+import sys, os.path, time
 
-import sickbeard.search as search
+from lib.configobj import ConfigObj
+
 import sickbeard
+import sickbeard.search as search
 from sickbeard.tv import TVEpisode, TVShow
 import sickbeard.common as c
 from sickbeard.common import Quality
 import sickbeard.common as Status
+from sickbeard import helpers
+
+import functional_test
 
 class EpisodeWantedTest(test.SickbeardTestDBCase):
     def test_wanted_episode_with_matching_language(self):
@@ -42,7 +47,7 @@ class EpisodeWantedTest(test.SickbeardTestDBCase):
 
         self.assertTrue(show.wantEpisode(1, 1, Quality.HDTV, False, '', ["en"]))
         
-        
+
         episode.audio_langs = ["en"]
         episode.status = Quality.compositeStatus(Status.DOWNLOADED, Quality.FULLHDBLURAY)
         episode.saveToDB()
@@ -61,6 +66,27 @@ class EpisodeWantedTest(test.SickbeardTestDBCase):
         episode.saveToDB()
         # We've got german so we're satisfied :)
         self.assertFalse(show.wantEpisode(1, 1, Quality.HDTV, False, '', ["en"]))
+
+    def test_functional(self):
+        functional_test.main()
+
+        show = TVShow(121361, "en", "en")
+        show.loadFromTVDB()
+        show.audio_langs = "de:1|en:0"
+        show.saveToDB()
+
+        sickbeard.backlogSearchScheduler.action.searchBacklog([show])
+        
+        global __INITIALIZED__, currentSearchScheduler, backlogSearchScheduler, \
+            showUpdateScheduler, versionCheckScheduler, showQueueScheduler, \
+            properFinderScheduler, autoPostProcesserScheduler, searchQueueScheduler, \
+            started
+        
+        while (backlogSearchScheduler.thread.am_running()):
+            time.sleep(1)
+            print "still running backlog"
+
+        sickbeard.saveAndShutdown()
 
     def __init__(self, something):
         super(EpisodeWantedTest, self).__init__(something)

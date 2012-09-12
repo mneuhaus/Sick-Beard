@@ -415,7 +415,7 @@ class NewzbinCache(tvcache.TVCache):
                 language = helpers.get_xml_text(attribute).lower()
                 languages.append(language)
         
-        languages.push("english")
+        languages.append("english")
 
         rsslang = languages[0]
 
